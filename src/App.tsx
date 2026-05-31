@@ -95,7 +95,7 @@ const starterBlocks: ProblemBlock[] = [
   {
     id: uid(),
     type: "text",
-    text: "$g(-5)$의 값을 구하시오. (단, $" + tex("g(-1) ", BS, "ne -", BS, "frac{7}{2}g(1)") + "$) [4점]",
+    text: "$g(-5)$의 값을 구하시오. (단, $" + tex("g(-1) ", BS, "neq -", BS, "frac{7}{2}g(1)") + "$) [4점]",
     align: "left",
     mt: 4,
     mb: 20,
@@ -112,7 +112,7 @@ const symbolTabs: Record<string, string[]> = {
   수열: ["a_n", "S_n", tex(BS, "sum_{k=1}^{n}"), "a_{n+1}", "a_1", tex("n", BS, "in", BS, "mathbb{N}"), tex(BS, "text{등차수열}"), tex(BS, "text{등비수열}")],
   삼각: [tex(BS, "sin x"), tex(BS, "cos x"), tex(BS, "tan x"), tex(BS, "pi"), tex(BS, "frac{", BS, "pi}{2}"), tex(BS, "angle ABC")],
   "기하·벡터": [tex(BS, "overline{AB}"), tex(BS, "vec{AB}"), tex(BS, "overrightarrow{AB}"), tex(BS, "perp"), tex(BS, "parallel"), "x^2+y^2=r^2", tex(BS, "frac{x^2}{a^2}+", BS, "frac{y^2}{b^2}=1")],
-  "관계·집합": [tex(BS, "le"), tex(BS, "ge"), "<", ">", tex(BS, "ne"), "=", tex(BS, "in"), tex(BS, "notin"), tex(BS, "mathbb{R}"), tex(BS, "mathbb{N}")],
+  "관계·집합": [tex(BS, "le"), tex(BS, "ge"), "<", ">", tex(BS, "neq"), "=", tex(BS, "in"), tex(BS, "notin"), tex(BS, "mathbb{R}"), tex(BS, "mathbb{N}")],
   "수능 문장": ["<보 기>", "단,", "일 때,", "다음 조건을 만족시킨다.", "값을 구하시오.", "최솟값을 구하시오.", "실수 전체의 집합에서", "서로 다른 실근의 개수"],
 };
 
@@ -209,6 +209,24 @@ function InlineBlockPreview({ block }: { block: ProblemBlock }) {
   return <div style={{ marginTop: block.mt, marginBottom: block.mb, fontSize: block.size }} className={"exam-body " + alignClass}><PreviewText text={block.text ?? ""} /></div>;
 }
 
+function EditorOutputPreview({ block }: { block: ProblemBlock }) {
+  if (block.type === "equation") {
+    return <div className="mt-2 rounded-xl border bg-white px-3 py-3 text-center text-sm"><div className="mb-2 text-left text-[11px] font-bold text-neutral-500">출력 예시</div><MathSpan latex={block.latex ?? ""} display /></div>;
+  }
+  if (block.type === "box") {
+    return (
+      <div className="mt-2 rounded-xl border bg-white px-4 py-5 text-sm">
+        <div className="mb-4 text-left text-[11px] font-bold text-neutral-500">출력 예시</div>
+        <div className="exam-box mx-auto max-w-full text-[15px]" style={{ width: (block.width ?? 96) + "%" }}>
+          {block.title ? <div className="exam-box-title text-[14px]">{block.title}</div> : null}
+          {(block.text ?? "").split(NL).map((line, i) => <p key={i} className={line.trim() ? "" : "exam-blank-line"}><PreviewText text={line} /></p>)}
+        </div>
+      </div>
+    );
+  }
+  return <div className="mt-2 rounded-xl border bg-white px-3 py-3 text-sm leading-7"><div className="mb-2 text-left text-[11px] font-bold text-neutral-500">출력 예시</div><div className="exam-body text-[15px]"><PreviewText text={block.text ?? ""} /></div></div>;
+}
+
 function TrackTextArea({
   value,
   rows,
@@ -294,12 +312,7 @@ function BlockEditor({
         onChange={(next) => patch(block.id, { [field]: next })}
         className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-neutral-900"
       />
-      {block.type === "equation" ? (
-        <div className="mt-2 rounded-xl border bg-white px-3 py-3 text-center text-sm">
-          <div className="mb-2 text-left text-[11px] font-bold text-neutral-500">출력 예시</div>
-          <MathSpan latex={block.latex ?? ""} display />
-        </div>
-      ) : null}
+      <EditorOutputPreview block={block} />
       <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
         <button onClick={() => patch(block.id, { align: "left" })} className="rounded-lg border bg-white py-1 text-xs"><AlignLeft className="inline" size={13} /> 왼쪽</button>
         <button onClick={() => patch(block.id, { align: "center" })} className="rounded-lg border bg-white py-1 text-xs"><AlignCenter className="inline" size={13} /> 중앙</button>
@@ -325,7 +338,7 @@ function GuideContent() {
         <h1 className="guide-title">문항 편집기 사용법</h1>
         <p className="guide-lead">수능·평가원 문항처럼 보이는 수학 문제를 발문, 수식 블록, 조건 박스, 보기 박스, 오지선다로 나누어 작성하는 편집기입니다.</p>
         <section id="guide-start" className="guide-section"><h2>시작하기</h2><p>상단의 편집 버튼을 누르면 문항 번호, 발문, 기호 탭, 블록 목록을 수정할 수 있습니다. 흰색 미리보기 영역은 실제로 이미지 저장되는 문항 화면입니다.</p><p>기본 문항은 발문 → 수식 블록 → 설명 문장 → 조건 박스 → 결론 문장 순서로 구성되어 있습니다. 새 문항을 만들 때도 이 순서를 유지하면 수능형 발문 흐름을 만들기 쉽습니다.</p></section>
-        <section id="guide-blocks" className="guide-section"><h2>문항 블록</h2><h3>문장 블록</h3><p>일반 문장을 입력합니다. 문장 안의 수식은 $f(x)$처럼 달러 기호로 감싸면 렌더링됩니다.</p><h3>수식 블록</h3><p>조각함수, 극한식, 적분식처럼 독립적으로 크게 보여야 하는 식을 입력합니다. 수식 블록 아래에는 출력 예시가 바로 표시되어 LaTeX가 의도대로 보이는지 확인할 수 있습니다.</p><h3>조건·보기 박스</h3><p>조건 박스는 (가), (나), (다) 조건을 넣을 때 사용합니다. 보기 버튼은 제목이 &lt;보 기&gt;인 박스를 자동으로 만들고 ㄱ, ㄴ, ㄷ 문항을 수정할 수 있게 합니다.</p></section>
+        <section id="guide-blocks" className="guide-section"><h2>문항 블록</h2><h3>문장 블록</h3><p>일반 문장을 입력합니다. 문장 안의 수식은 $f(x)$처럼 달러 기호로 감싸면 렌더링됩니다. 문장 블록 아래 출력 예시에서 인라인 수식이 제대로 보이는지 확인할 수 있습니다.</p><h3>수식 블록</h3><p>조각함수, 극한식, 적분식처럼 독립적으로 크게 보여야 하는 식을 입력합니다. 수식 블록 아래에는 출력 예시가 바로 표시되어 LaTeX가 의도대로 보이는지 확인할 수 있습니다.</p><h3>조건·보기 박스</h3><p>조건 박스는 (가), (나), (다) 조건을 넣을 때 사용합니다. 보기 버튼은 제목이 &lt;보 기&gt;인 박스를 자동으로 만들고 ㄱ, ㄴ, ㄷ 문항을 수정할 수 있게 합니다. 조건/보기 박스도 출력 예시가 제공됩니다.</p></section>
         <section id="guide-symbols" className="guide-section"><h2>기호와 수식 입력</h2><p>먼저 입력하고 싶은 칸을 터치하거나 클릭합니다. 그다음 왼쪽 기호 탭에서 원하는 기호를 누르면 마지막 커서 위치에 삽입됩니다.</p><p>문장·조건 박스·선지 입력칸에서는 수학 기호가 자동으로 $...$로 감싸집니다. 예를 들어 발문에서 <b>f(x)</b> 버튼을 누르면 <code>$f(x)$</code>가 들어갑니다. 이미 $...$ 안에 커서가 있으면 다시 감싸지 않고 <code>f(x)</code>만 들어갑니다.</p><p>수식 블록은 항상 LaTeX 수식 모드로 처리되므로 기호를 눌러도 $...$가 붙지 않습니다. 예를 들어 조각함수를 만들 때는 기본 탭의 cases 기호를 넣고, 빈칸을 직접 채우면 됩니다.</p><p>미분·적분 탭에는 미분계수의 정의식 <code>f'(a)=lim...</code>도 들어 있습니다. 버튼을 누른 뒤 문자 <code>a</code>, <code>h</code>, 함수 이름 등을 필요한 문항에 맞게 바꾸면 됩니다.</p><code className="guide-code">{"일반 문장 입력 예시" + NL + "함수  +  f(x) 버튼  →  함수 $f(x)$" + NL + NL + "수식 블록 입력 예시" + NL + tex(BS, "displaystyle f'(a)=", BS, "lim_{h", BS, "to0}", BS, "frac{f(a+h)-f(a)}{h}")}</code></section>
         <section id="guide-mobile" className="guide-section"><h2>모바일 입력</h2><p>모바일에서는 입력칸을 한 번 터치한 뒤 커서를 원하는 위치로 옮기고 기호 버튼을 누르세요. 편집기는 마지막 커서 위치를 기억해서 버튼을 누를 때 그 위치에 삽입하려고 합니다.</p><p>기기나 브라우저에 따라 키보드가 닫히면서 커서 표시가 사라질 수 있지만, 마지막으로 선택했던 입력칸과 위치가 저장되어 있으면 그 위치에 기호가 들어갑니다.</p></section>
         <section id="guide-export" className="guide-section"><h2>내보내기</h2><p>이미지 저장은 문항 영역만 PNG로 저장합니다. LaTeX 보기는 원문을 별도 창에 표시하고 txt로 저장할 수 있습니다. 오지선다는 선지 길이에 따라 5열, 3열, 2열, 1열로 자동 조정됩니다.</p></section>
