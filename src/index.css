@@ -155,8 +155,28 @@ button {
   font-family: "Noto Sans KR", sans-serif;
 }
 
+.katex {
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.katex .mord.text {
+  font-family: "Noto Serif KR", "Nanum Myeongjo", "Times New Roman", serif;
+}
+
 .exam-page .katex {
+  font-size: 1.02em;
+}
+
+.exam-box .katex,
+.exam-choice-item .katex {
   font-size: 1em;
+}
+
+.editor-modal .katex {
+  font-size: 1.08em;
 }
 
 .guide-shell {
