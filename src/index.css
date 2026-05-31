@@ -168,21 +168,6 @@ button {
 
 .exam-page .katex {
   font-size: 1.02em;
-  line-height: 1.35;
-  overflow: visible !important;
-}
-
-.exam-page .katex * {
-  overflow: visible !important;
-}
-
-.exam-page .katex .frac-line,
-.editor-modal .katex .frac-line {
-  border-bottom-color: currentColor !important;
-  border-bottom-style: solid !important;
-  border-bottom-width: 0.04em !important;
-  min-height: 1px;
-  transform: translateY(0.08em);
 }
 
 .exam-box .katex,
@@ -192,12 +177,6 @@ button {
 
 .editor-modal .katex {
   font-size: 1.08em;
-  line-height: 1.35;
-  overflow: visible !important;
-}
-
-.editor-modal .katex * {
-  overflow: visible !important;
 }
 
 .guide-shell {
